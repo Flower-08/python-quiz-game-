@@ -1,7 +1,7 @@
 import random
 import streamlit as st
 
-# Your quiz questions
+# Quiz questions
 quiz_dict = [
     {
         "number": "1",
@@ -52,6 +52,33 @@ quiz_dict = [
         "number": "10",
         "question": "Which country has the most time zones, including overseas territories?",
         "answer": "France"
+    },
+    
+    # 5 new GK questions
+    {
+        "number": "11",
+        "question": "What is the largest planet in our Solar System?",
+        "answer": "Jupiter"
+    },
+    {
+        "number": "12",
+        "question": "Who painted the Mona Lisa?",
+        "answer": "Leonardo da Vinci"
+    },
+    {
+        "number": "13",
+        "question": "What is the chemical symbol for gold?",
+        "answer": "Au"
+    },
+    {
+        "number": "14",
+        "question": "How many sides does a hexagon have?",
+        "answer": "Six"
+    },
+    {
+        "number": "15",
+        "question": "What is the smallest country in the world?",
+        "answer": "Vatican City"
     }
 ]
 
@@ -61,7 +88,6 @@ def start_game():
     st.session_state.questions = random.sample(quiz_dict, 5)
     st.session_state.current_question = 0
     st.session_state.score = 0
-    st.session_state.answered = False
     st.session_state.game_finished = False
 
 
@@ -72,6 +98,7 @@ if "questions" not in st.session_state:
 
 # Title
 st.title("🎯 Python Quiz Game")
+
 
 # Game finished
 if st.session_state.game_finished:
@@ -104,49 +131,50 @@ else:
 
     st.write(f"**{question['question']}**")
 
-    # Answer box
-    answer = st.text_input(
-        "Your answer:",
-        key=f"answer_{current}",
-        disabled=st.session_state.answered
-    )
+    # Form allows Enter to submit
+    with st.form(key=f"quiz_form_{current}"):
 
-    # Submit answer
-    if not st.session_state.answered:
+        answer = st.text_input(
+            "Your answer:"
+        )
 
-        if st.button("Submit Answer"):
-
-            if answer.strip().lower() == question["answer"].lower():
-
-                st.success("✅ Correct! You gained a point.")
-                st.session_state.score += 1
-
-            else:
-
-                st.error("❌ Incorrect! Your points remain the same.")
-
-                st.info(
-                    f"The correct answer was: **{question['answer']}**"
-                )
-
-            st.session_state.answered = True
-            st.rerun()
-
-
-    # Next question button
-    else:
-
+        # Pressing Enter also activates this button
         if current < 4:
+            submitted = st.form_submit_button(
+                "➡️ Submit & Next Question"
+            )
+        else:
+            submitted = st.form_submit_button(
+                "🏁 Submit & See Final Score"
+            )
 
-            if st.button("➡️ Next Question"):
+    # When the answer is submitted
+    if submitted:
 
-                st.session_state.current_question += 1
-                st.session_state.answered = False
-                st.rerun()
+        if answer.strip().lower() == question["answer"].lower():
+
+            st.session_state.score += 1
+            st.success("✅ Correct!")
 
         else:
 
-            if st.button("🏁 See Final Score"):
+            st.error("❌ Incorrect!")
 
-                st.session_state.game_finished = True
-                st.rerun()
+            st.info(
+                f"The correct answer was: **{question['answer']}**"
+            )
+
+        # Move to next question automatically
+        if current < 4:
+
+            st.session_state.current_question += 1
+            st.rerun()
+
+        else:
+
+            st.session_state.game_finished = True
+            st.rerun()
+       
+
+    
+
